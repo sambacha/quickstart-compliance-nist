@@ -4,6 +4,16 @@ Description: Enterprise Accelerator - Provides nesting for required stacks to de
   a full sample web application with reverse proxy, ELBs, IAM, and other resources
   (for demonstration/POC/testing)
 Metadata:
+  Stack:
+    Value: 0
+  VersionDate:
+    Value: 20160518
+  Identifier:
+    Value: main
+  Input:
+    Description: Input of all required parameters in nested stacks
+  Output:
+    Description: N/A
   AWS::CloudFormation::Interface:
     ParameterGroups:
     - Label:
@@ -42,16 +52,6 @@ Metadata:
         default: Quick Start S3 Bucket Name
       QSS3KeyPrefix:
         default: Quick Start S3 Key Prefix
-  Stack:
-    Value: 0
-  VersionDate:
-    Value: 20160518
-  Identifier:
-    Value: main
-  Input:
-    Description: Input of all required parameters in nested stacks
-  Output:
-    Description: N/A
 Parameters:
   pDBPassword:
     Description: Mixed alphanumeric and must be between 8 and 28 characters and contain
