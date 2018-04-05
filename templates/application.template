@@ -1,8 +1,8 @@
 ---
 AWSTemplateFormatVersion: 2010-09-09
-Description: QS(0016) Enterprise Accelerator - Provides nesting for required stacks
-  to deploy a full sample web application with reverse proxy, ELBs, IAM, and other
-  resources (for demonstration/POC/testing)
+Description: Provides nesting for required stacks to deploy a full sample web application
+  with reverse proxy, ELBs, IAM, and other resources (for demonstration/POC/testing)
+  QS(0016)
 Metadata:
   Stack:
     Value: 3
@@ -1051,22 +1051,22 @@ Resources:
           echo Determine whether a certificate needs to be generated
           cert_arn=$(aws iam list-server-certificates --query 'ServerCertificateMetadataList[?ServerCertificateName==`non-production-testing-server-cert`].Arn' --output text)
           if [[ $(echo "$cert_arn" | grep "non-production-testing-server-cert") != *"non-production-testing-server-cert"* ]]; then
-          echo *** Beginnning ELB HTTPS configuration ***
-          echo Generating private key...
-          openssl genrsa -out /tmp/my-private-key.pem 2048
-          echo Creating CSR
-          openssl req -sha256 -new -key /tmp/my-private-key.pem -out /tmp/csr.pem -subj "/C=US/ST=Washington/L=Seattle/O=NonProductionTestCert/CN=NonProductionTestCert"
-          echo Self-signing certificate...
-          openssl x509 -req -days 365 -in /tmp/csr.pem -signkey /tmp/my-private-key.pem -out /tmp/my-certificate.pem
-          openssl rsa -in /tmp/my-private-key.pem -outform PEM
-          echo Converting private key...
-          openssl x509 -inform PEM -in /tmp/my-certificate.pem
-          echo Uploading key to AWS IAM and saving ARN to environment variable...
-          cert_arn=$(aws iam upload-server-certificate --server-certificate-name non-production-testing-server-cert --query 'ServerCertificateMetadata.Arn' --output text --certificate-body file:///tmp/my-certificate.pem --private-key file:///tmp/my-private-key.pem)
-          echo Sleeping so IAM can propogate the certificate...
-          sleep 10
-          echo Removing key files...
-          rm /tmp/*.pem
+            echo *** Beginnning ELB HTTPS configuration ***
+            echo Generating private key...
+            openssl genrsa -out /tmp/my-private-key.pem 2048
+            echo Creating CSR
+            openssl req -sha256 -new -key /tmp/my-private-key.pem -out /tmp/csr.pem -subj "/C=US/ST=Washington/L=Seattle/O=NonProductionTestCert/CN=NonProductionTestCert"
+            echo Self-signing certificate...
+            openssl x509 -req -days 365 -in /tmp/csr.pem -signkey /tmp/my-private-key.pem -out /tmp/my-certificate.pem
+            openssl rsa -in /tmp/my-private-key.pem -outform PEM
+            echo Converting private key...
+            openssl x509 -inform PEM -in /tmp/my-certificate.pem
+            echo Uploading key to AWS IAM and saving ARN to environment variable...
+            cert_arn=$(aws iam upload-server-certificate --server-certificate-name non-production-testing-server-cert --query 'ServerCertificateMetadata.Arn' --output text --certificate-body file:///tmp/my-certificate.pem --private-key file:///tmp/my-private-key.pem)
+            echo Sleeping so IAM can propogate the certificate...
+            sleep 10
+            echo Removing key files...
+            rm /tmp/*.pem
           fi
           echo Creating ELB HTTPS listener using the cert stored in the environment variable...
           aws elb create-load-balancer-listeners --load-balancer-name ${rELBWeb} --listeners "Protocol=HTTPS,LoadBalancerPort=443,InstanceProtocol=HTTP,InstancePort=80,SSLCertificateId=$cert_arn" --region ${AWS::Region}
