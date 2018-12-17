@@ -23,8 +23,7 @@ Metadata:
       - pEC2KeyPairBastion
       - pEC2KeyPair
       - pSupportsConfig
-      - pAvailabilityZoneA
-      - pAvailabilityZoneB
+      - pAvailabilityZones
     - Label:
         default: AWS Quick Start Configuration
       Parameters:
@@ -41,10 +40,8 @@ Metadata:
         default: Existing SSH Key for Other Instances
       pSupportsConfig:
         default: Support Config
-      pAvailabilityZoneA:
-        default: First Availability Zone
-      pAvailabilityZoneB:
-        default: Second Availability zone
+      pAvailabilityZone:
+        default: Availability Zones
       pVPCTenancy:
         default: Instance tenancy
       QSS3BucketName:
@@ -83,12 +80,9 @@ Parameters:
     - 'false'
     Default: 'false'
     Type: String
-  pAvailabilityZoneA:
-    Description: Availability Zone 1
-    Type: AWS::EC2::AvailabilityZone::Name
-  pAvailabilityZoneB:
-    Description: Availability Zone 2
-    Type: AWS::EC2::AvailabilityZone::Name
+  pAvailabilityZones:
+    Description: Availability Zones
+    Type: List<AWS::EC2::AvailabilityZone::Name>
   pVPCTenancy:
     Description: Instance tenancy behavior for this VPC
     Type: String
@@ -303,8 +297,8 @@ Resources:
             - s3
       TimeoutInMinutes: 20
       Parameters:
-        pRegionAZ1Name: !Ref pAvailabilityZoneA
-        pRegionAZ2Name: !Ref pAvailabilityZoneB
+        pRegionAZ1Name: !Select [ 0, !Ref pAvailabilityZones ]
+        pRegionAZ2Name: !Select [ 1, !Ref pAvailabilityZones ]
         pProductionVPCName: Production VPC
         pBastionSSHCIDR: 0.0.0.0/0
         pDMZSubnetACIDR: 10.100.10.0/24
@@ -380,8 +374,8 @@ Resources:
           - AWSAMIRegionMap
           - !Ref AWS::Region
           - AMZNLINUXHVM
-        pRegionAZ1Name: !Ref pAvailabilityZoneA
-        pRegionAZ2Name: !Ref pAvailabilityZoneB
+        pRegionAZ1Name: !Select [ 0, !Ref pAvailabilityZones ]
+        pRegionAZ2Name: !Select [ 1, !Ref pAvailabilityZones ]
         pEnvironment:
           !FindInMap
           - CustomVariables
@@ -492,8 +486,8 @@ Resources:
           - ProductionVpcTemplate
           - Outputs.rDBPrivateSubnetB
         pManagementCIDR: 10.10.0.0/16
-        pRegionAZ1Name: !Ref pAvailabilityZoneA
-        pRegionAZ2Name: !Ref pAvailabilityZoneB
+        pRegionAZ1Name: !Select [ 0, !Ref pAvailabilityZones ]
+        pRegionAZ2Name: !Select [ 1, !Ref pAvailabilityZones ]
         pWebServerAMI:
           !FindInMap
           - AWSAMIRegionMap
@@ -512,7 +506,7 @@ Resources:
           - AWSAMIRegionMap
           - !Ref AWS::Region
           - InstanceTypeDatabase
-        pDBAllocatedStorage: 10
+        pDBAllocatedStorage: "10"
         pEnvironment:
           !FindInMap
           - CustomVariables
